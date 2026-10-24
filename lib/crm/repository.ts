@@ -16,11 +16,20 @@ function searchText(value: string): string {
 }
 
 export async function listContacts(filters: ContactFilters = {}): Promise<Contact[]> {
-  const { data, error } = await getDb().from("contacts").select("*").limit(2000);
-  if (error) throw new Error("contacts_list_failed");
-  const query = searchText(filters.search?.trim() ?? "");
   const status = filters.status ?? "active";
-  const rows = ((data ?? []) as Contact[]).filter((contact) => {
+  // Supabase は 1 回の取得に上限（既定 1,000 行）があるため、全件を区切って読む
+  const pageSize = 1000;
+  const all: Contact[] = [];
+  for (let from = 0; ; from += pageSize) {
+    let request = getDb().from("contacts").select("*").order("id").range(from, from + pageSize - 1);
+    if (status !== "all") request = request.eq("status", status);
+    const { data, error } = await request;
+    if (error) throw new Error("contacts_list_failed");
+    all.push(...((data ?? []) as Contact[]));
+    if (!data || data.length < pageSize) break;
+  }
+  const query = searchText(filters.search?.trim() ?? "");
+  const rows = all.filter((contact) => {
     if (status !== "all" && contact.status !== status) return false;
     if (filters.stage && contact.stage !== filters.stage) return false;
     if (filters.tag && !contact.tags.includes(filters.tag)) return false;
