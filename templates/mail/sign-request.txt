@@ -1,0 +1,14 @@
+{{clientCompany}}
+{{clientName}} 様
+
+契約書をご用意しました。
+下記のリンクから全文をご確認いただき、内容に同意いただけましたら電子署名へお進みください。
+
+{{signUrl}}
+
+ご不明な点がありましたら、署名の前に発行者へお尋ねいただけます。
+
+{{issuerCompany}}
+{{issuerRepresentative}}
+{{issuerEmail}}
+{{issuerPhone}}

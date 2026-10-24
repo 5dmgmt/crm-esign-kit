@@ -1,0 +1,38 @@
+<div class="esign-contract">
+  <p class="esign-warning"><strong>見本です。実際の契約には使わないでください。</strong></p>
+  <p class="esign-warning">法律相談ではありません。実際の契約は専門家に確認してください。</p>
+  <h1>{{title}}</h1>
+  <p>契約日: {{contractDate}}</p>
+  <p>委託者（甲）: {{#corporation}}{{clientCompany}} / {{/corporation}}{{clientName}}</p>
+  <p>甲の住所: {{clientAddress}}</p>
+  <p>受託者（乙）: {{issuer.companyName}}</p>
+  <section>
+    <h2>第1条（委託内容）</h2>
+    <p>甲は乙へ、次の業務を委託します。</p>
+    <p>{{serviceDescription}}</p>
+    <ul>{{#each items}}<li>{{this}}</li>{{/each}}</ul>
+  </section>
+  <section>
+    <h2>第2条（委託料）</h2>
+    <p>委託料は {{fee}} 円とします。</p>
+  </section>
+  <section>
+    <h2>第3条（協議）</h2>
+    <p>この見本に定めのない事項は、甲乙が話し合って決めます。</p>
+  </section>
+  <div class="esign-signatures">
+    <section>
+      <h2>甲</h2>
+      {{#corporation}}<p>{{clientCompany}}</p>{{/corporation}}
+      <p>{{clientName}}</p>
+      <p>{{clientAddress}}</p>
+    </section>
+    <section>
+      <h2>乙</h2>
+      <p>{{issuer.companyName}}</p>
+      <p>{{issuer.representativeTitle}} {{issuer.representativeName}}</p>
+      <p>{{issuer.addressLine1}} {{issuer.addressLine2}}</p>
+      <div class="esign-issuer-seal">{{issuer.seal}}</div>
+    </section>
+  </div>
+</div>

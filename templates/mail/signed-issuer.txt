@@ -1,0 +1,7 @@
+契約書の電子署名が完了しました。
+
+文書番号: {{docNumber}}
+契約書: {{title}}
+署名者: {{clientCompany}} {{clientName}} 様
+締結日時: {{signedAt}}（日本時間）
+契約書と締結記録: {{signUrl}}

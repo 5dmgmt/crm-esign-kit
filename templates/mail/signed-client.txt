@@ -1,0 +1,15 @@
+{{clientCompany}}
+{{clientName}} 様
+
+電子署名を受け付け、締結記録を作成しました。
+
+文書番号: {{docNumber}}
+締結日時: {{signedAt}}（日本時間）
+契約書と締結記録: {{signUrl}}
+
+上記のページから控えを印刷できます。
+
+{{issuerCompany}}
+{{issuerRepresentative}}
+{{issuerEmail}}
+{{issuerPhone}}

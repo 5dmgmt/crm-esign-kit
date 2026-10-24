@@ -1,0 +1,17 @@
+{
+  "id": "sample-gyomu-itaku",
+  "name": "業務委託契約（見本）",
+  "version": "1.0.0",
+  "allowIndividual": true,
+  "stageTagOnSign": "契約",
+  "fields": [
+    { "key": "title", "label": "契約書名", "type": "text", "required": true, "max": 120, "defaultValue": "業務委託契約書（見本）" },
+    { "key": "clientCompany", "label": "お客様の会社名", "type": "text", "required": true, "requiredFor": "corporation", "max": 120 },
+    { "key": "clientName", "label": "お客様の氏名", "type": "text", "required": true, "max": 60 },
+    { "key": "clientAddress", "label": "お客様の住所", "type": "textarea", "required": true, "max": 300 },
+    { "key": "contractDate", "label": "契約日", "type": "date", "required": true, "max": 10 },
+    { "key": "serviceDescription", "label": "委託する業務", "type": "textarea", "required": true, "max": 1000 },
+    { "key": "fee", "label": "委託料（円）", "type": "money", "required": true, "max": 12 },
+    { "key": "items", "label": "成果物・作業項目", "type": "list", "required": true, "max": 10 }
+  ]
+}
