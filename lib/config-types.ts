@@ -19,4 +19,5 @@ export type KitConfig = {
   signingTokenDays?: number;
   signedDocumentViewDays?: number | null;
   stageTags?: string[];
+  autoAdvanceStageOnSign?: boolean;
 };

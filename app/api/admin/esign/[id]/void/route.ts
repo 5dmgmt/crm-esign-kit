@@ -1,14 +1,11 @@
-import { adminErrorResponse, requireAdmin } from "@/lib/auth/require-admin";
+import { guardAdminWrite } from "@/lib/auth/admin-api";
 import { voidEsignDocument } from "@/lib/esign/core";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
-  try {
-    await requireAdmin();
-  } catch (error) {
-    return adminErrorResponse(error) ?? Response.json({ ok: false, reason: "処理できませんでした。" }, { status: 500 });
-  }
+  const denied = await guardAdminWrite(request);
+  if (denied) return denied;
   let body: unknown;
   try {
     body = await request.json();

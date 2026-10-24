@@ -15,8 +15,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <>
       <header className="admin-header">
         <div className="admin-nav">
-          <Link href="/admin/esign">顧客台帳と電子契約</Link>
+          <Link href="/admin">顧客台帳と電子契約</Link>
           <nav aria-label="管理メニュー">
+            <Link href="/admin">今日の予定</Link>
+            <Link href="/admin/contacts">連絡先</Link>
             <Link href="/admin/esign">契約書</Link>
             <Link href="/admin/esign/new">新規作成</Link>
           </nav>

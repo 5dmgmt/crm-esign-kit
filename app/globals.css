@@ -110,11 +110,32 @@ tr:last-child td { border-bottom: 0; }
 .hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; overflow-wrap: anywhere; }
 .void-panel { border: 1px solid #e9b8b4; }
 .muted { color: var(--muted); }
+.dashboard-grid, .karte-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+.filter-grid { display: grid; grid-template-columns: minmax(220px, 1.5fr) repeat(4, minmax(130px, .7fr)); gap: 12px; align-items: end; }
+.form-grid, .mapping-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.mapping-grid { max-height: 430px; padding-right: 4px; overflow-y: auto; }
+.compact-list { display: grid; gap: 1px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.compact-list > a { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(140px, .8fr) auto; gap: 14px; padding: 12px 14px; background: white; text-decoration: none; }
+.compact-list > a + a { border-top: 1px solid var(--line); }
+.list-item { display: grid; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.list-item:last-child { border-bottom: 0; }
+.timeline { display: grid; gap: 12px; }
+.timeline-item { padding: 14px; border-left: 3px solid var(--brand); background: #f8fafb; border-radius: 5px; overflow-wrap: anywhere; }
+.timeline-item > div:first-child { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; }
+.timeline-item h3, .timeline-item p { margin: 7px 0 0; }
+.pre-wrap { white-space: pre-wrap; }
+.document-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.document-grid .list-item { padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+.button.compact, button.compact { min-height: 34px; padding: 5px 10px; font-size: 14px; }
+.danger-zone { border-color: #e9b8b4; }
 
 @media (max-width: 760px) {
-  .grid-two, .esign-signatures { grid-template-columns: 1fr; }
+  .grid-two, .esign-signatures, .dashboard-grid, .karte-grid, .form-grid, .mapping-grid, .document-grid, .filter-grid { grid-template-columns: 1fr; }
   .preview { position: static; }
   .page-heading { align-items: flex-start; flex-direction: column; }
+  .admin-nav { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+  .admin-nav nav { gap: 10px 14px; flex-wrap: wrap; }
+  .compact-list > a { grid-template-columns: 1fr; gap: 2px; }
 }
 
 @media print {

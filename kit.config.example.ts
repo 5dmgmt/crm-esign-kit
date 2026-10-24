@@ -19,6 +19,7 @@ const config = {
   signingTokenDays: 14,
   signedDocumentViewDays: null,
   stageTags: ["見込み", "提案中", "契約", "取引中", "休眠"],
+  autoAdvanceStageOnSign: true,
 } satisfies KitConfig;
 
 export default config;

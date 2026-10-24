@@ -4,14 +4,21 @@ import { useMemo, useRef, useState, type FormEvent } from "react";
 import type { ClientKind, ContractTemplateSchema, TemplateField } from "@/lib/esign/types";
 
 type Values = Record<string, string>;
+type InitialContact = { id: string; companyName: string; name: string; email: string; address: string };
 
-function initialValues(schema: ContractTemplateSchema): Values {
-  return Object.fromEntries(
+function initialValues(schema: ContractTemplateSchema, contact?: InitialContact | null): Values {
+  const values = Object.fromEntries(
     schema.fields.map((field) => [
       field.key,
       Array.isArray(field.defaultValue) ? field.defaultValue.join("\n") : field.defaultValue ?? "",
     ]),
   );
+  if (contact) {
+    if ("clientCompany" in values) values.clientCompany = contact.companyName;
+    if ("clientName" in values) values.clientName = contact.name;
+    if ("clientAddress" in values) values.clientAddress = contact.address;
+  }
+  return values;
 }
 
 function FieldInput({ field, value, onChange }: { field: TemplateField; value: string; onChange: (value: string) => void }) {
@@ -39,16 +46,16 @@ function FieldInput({ field, value, onChange }: { field: TemplateField; value: s
   );
 }
 
-export default function EsignCreateForm({ templates }: { templates: ContractTemplateSchema[] }) {
+export default function EsignCreateForm({ templates, initialContact = null }: { templates: ContractTemplateSchema[]; initialContact?: InitialContact | null }) {
   const [templateId, setTemplateId] = useState(templates[0]?.id ?? "");
   const schema = useMemo(
     () => templates.find((template) => template.id === templateId) ?? templates[0],
     [templateId, templates],
   );
-  const [clientKind, setClientKind] = useState<ClientKind>("corporation");
-  const [clientEmail, setClientEmail] = useState("");
+  const [clientKind, setClientKind] = useState<ClientKind>(initialContact && !initialContact.companyName ? "individual" : "corporation");
+  const [clientEmail, setClientEmail] = useState(initialContact?.email ?? "");
   const [sendMail, setSendMail] = useState(true);
-  const [values, setValues] = useState<Values>(() => (schema ? initialValues(schema) : {}));
+  const [values, setValues] = useState<Values>(() => (schema ? initialValues(schema, initialContact) : {}));
   const [message, setMessage] = useState("");
   const [resultUrl, setResultUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -60,7 +67,7 @@ export default function EsignCreateForm({ templates }: { templates: ContractTemp
     const next = templates.find((template) => template.id === nextId);
     setTemplateId(nextId);
     if (next) {
-      setValues(initialValues(next));
+      setValues(initialValues(next, initialContact));
       if (!next.allowIndividual) setClientKind("corporation");
     }
   }
@@ -82,7 +89,7 @@ export default function EsignCreateForm({ templates }: { templates: ContractTemp
       const response = await fetch("/api/admin/esign/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ templateId, clientKind, clientEmail, sendMail, fields }),
+        body: JSON.stringify({ templateId, clientKind, clientEmail, contactId: initialContact?.id ?? null, sendMail, fields }),
       });
       const payload = (await response.json()) as {
         ok?: boolean;

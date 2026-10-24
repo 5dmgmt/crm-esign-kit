@@ -7,6 +7,7 @@ export type ResolvedKitConfig = KitConfig & {
   signingTokenDays: number;
   signedDocumentViewDays: number | null;
   stageTags: string[];
+  autoAdvanceStageOnSign: boolean;
 };
 
 type ConfigState = {
@@ -47,6 +48,7 @@ function normalizeConfig(value: KitConfig): ResolvedKitConfig {
     stageTags:
       value.stageTags?.filter((tag) => typeof tag === "string" && tag.trim()).map((tag) => tag.trim()) ??
       ["見込み", "提案中", "契約", "取引中", "休眠"],
+    autoAdvanceStageOnSign: value.autoAdvanceStageOnSign !== false,
   };
 }
 

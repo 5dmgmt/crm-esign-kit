@@ -1,5 +1,6 @@
 import { getKitConfig } from "@/lib/config";
-import { adminErrorResponse, requireAdmin } from "@/lib/auth/require-admin";
+import { guardAdminWrite } from "@/lib/auth/admin-api";
+import { isUuid } from "@/lib/crm/validation";
 import { createEsignDocument, formatDocNumber } from "@/lib/esign/core";
 import { sendSignRequestMail } from "@/lib/esign/mail";
 import { ContractValidationError, renderContract } from "@/lib/esign/render";
@@ -20,11 +21,8 @@ function isClientKind(value: unknown): value is ClientKind {
 }
 
 export async function POST(request: Request) {
-  try {
-    await requireAdmin();
-  } catch (error) {
-    return adminErrorResponse(error) ?? Response.json({ ok: false, reason: "処理できませんでした。" }, { status: 500 });
-  }
+  const denied = await guardAdminWrite(request);
+  if (denied) return denied;
 
   let body: unknown;
   try {
@@ -40,7 +38,7 @@ export async function POST(request: Request) {
     !isClientKind(body.clientKind) ||
     typeof body.clientEmail !== "string" ||
     !EMAIL_PATTERN.test(body.clientEmail.trim()) ||
-    (body.contactId !== null && body.contactId !== undefined && typeof body.contactId !== "string") ||
+    (body.contactId !== null && body.contactId !== undefined && !isUuid(body.contactId)) ||
     (body.sendMail !== undefined && typeof body.sendMail !== "boolean")
   ) {
     return Response.json({ ok: false, reason: "入力項目をご確認ください。" }, { status: 400 });
