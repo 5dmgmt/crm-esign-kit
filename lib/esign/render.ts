@@ -79,6 +79,9 @@ export function validateContractFields(
     if (field.type === "money" && value && !/^\d+(?:\.\d{1,2})?$/.test(value)) {
       issues.push(`${field.label}は数字で入力してください。`);
     }
+    if (field.type === "select" && value && !field.options?.some((option) => option.value === value)) {
+      issues.push(`${field.label}は選択肢から選んでください。`);
+    }
     result[field.key] = value;
   }
 

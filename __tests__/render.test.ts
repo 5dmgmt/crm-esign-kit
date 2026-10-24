@@ -13,6 +13,17 @@ const template: ContractTemplate = {
       { key: "clientCompany", label: "会社名", type: "text", required: true, requiredFor: "corporation", max: 30 },
       { key: "clientName", label: "氏名", type: "text", required: true, max: 30 },
       { key: "items", label: "項目", type: "list", required: true, max: 2 },
+      {
+        key: "plan",
+        label: "プラン",
+        type: "select",
+        required: false,
+        max: 10,
+        options: [
+          { value: "basic", label: "ベーシック" },
+          { value: "pro", label: "プロ" },
+        ],
+      },
     ],
   },
   html: "{{#corporation}}<p>法人: {{clientCompany}}</p>{{/corporation}}{{#individual}}<p>個人</p>{{/individual}}<h1>{{clientName}}</h1><ul>{{#each items}}<li>{{this}}</li>{{/each}}</ul><p>{{issuer.companyName}}</p>",
@@ -42,6 +53,12 @@ describe("契約書レンダリング", () => {
 
   it("リストの最大数を検証する", () => {
     expect(() => renderContract(template, { clientCompany: "株式会社サンプル商事", clientName: "山田 花子", items: ["1", "2", "3"] }, "corporation")).toThrow(/2件以内/);
+  });
+
+  it("選択肢にない値を拒否し、選択肢の値は差し込む", () => {
+    const base = { clientCompany: "株式会社サンプル商事", clientName: "山田 花子", items: ["項目"] };
+    expect(() => renderContract(template, { ...base, plan: "gold" }, "corporation")).toThrow(/選択肢から選んでください/);
+    expect(renderContract(template, { ...base, plan: "pro" }, "corporation").fields.plan).toBe("pro");
   });
 
   it("個人では会社名を求めず、法人欄を表示しない", () => {

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createEsignDocument,
   generateToken,
+  reissueSignToken,
   sha256Hex,
   signEsignDocument,
   voidEsignDocument,
@@ -47,6 +48,11 @@ function repository(seed?: Partial<EsignDocument>) {
       row = { ...row, status: "void", void_reason: reason, voided_at: at };
       return row;
     },
+    async reissueToken(_id: string, tokenHash: string, expiresAt: string) {
+      if (!row || row.status !== "sent") return null;
+      row = { ...row, token_hash: tokenHash, token_expires_at: expiresAt };
+      return row;
+    },
   };
   return repo;
 }
@@ -73,6 +79,24 @@ describe("電子契約の中核", () => {
     const { doc } = await create(repo);
     expect(doc.status).toBe("signed");
     expect(await voidEsignDocument(doc.id, "取り下げ", repo)).toEqual({ ok: false, reason: "not_found" });
+  });
+
+  it("署名用リンクを作り直すと、前のトークンでは署名できず新しいトークンで署名できる", async () => {
+    const repo = repository();
+    const { doc, token: oldToken } = await create(repo);
+    const reissued = await reissueSignToken(doc.id, repo);
+    expect(reissued).not.toBeNull();
+    expect(reissued!.token).not.toBe(oldToken);
+    const sign = (token: string) =>
+      signEsignDocument({ token, signCompany: "株式会社サンプル商事", signName: "山田 花子", ip: "127.0.0.1", userAgent: "test" }, repo);
+    expect(await sign(oldToken)).toEqual({ ok: false, reason: "not_found" });
+    expect((await sign(reissued!.token)).ok).toBe(true);
+  });
+
+  it("締結済みの文書のリンクは作り直さない", async () => {
+    const repo = repository({ status: "signed" });
+    const { doc } = await create(repo);
+    expect(await reissueSignToken(doc.id, repo)).toBeNull();
   });
 
   it("32バイトの base64url トークンを生成する", () => {

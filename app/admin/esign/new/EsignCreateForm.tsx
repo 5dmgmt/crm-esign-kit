@@ -10,7 +10,10 @@ function initialValues(schema: ContractTemplateSchema, contact?: InitialContact 
   const values = Object.fromEntries(
     schema.fields.map((field) => [
       field.key,
-      Array.isArray(field.defaultValue) ? field.defaultValue.join("\n") : field.defaultValue ?? "",
+      Array.isArray(field.defaultValue)
+        ? field.defaultValue.join("\n")
+        // 必須の選択肢は画面で先頭が選ばれて見えるため、値も先頭にそろえる
+        : field.defaultValue ?? (field.type === "select" && field.required ? field.options?.[0]?.value ?? "" : ""),
     ]),
   );
   if (contact) {
@@ -22,6 +25,14 @@ function initialValues(schema: ContractTemplateSchema, contact?: InitialContact 
 }
 
 function FieldInput({ field, value, onChange }: { field: TemplateField; value: string; onChange: (value: string) => void }) {
+  if (field.type === "select") {
+    return (
+      <select value={value} onChange={(event) => onChange(event.target.value)} required={field.required && !field.requiredFor}>
+        {field.required ? null : <option value="">選ばない</option>}
+        {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </select>
+    );
+  }
   if (field.type === "textarea" || field.type === "list") {
     return (
       <textarea
@@ -44,6 +55,11 @@ function FieldInput({ field, value, onChange }: { field: TemplateField; value: s
       required={field.required && !field.requiredFor}
     />
   );
+}
+
+function displayValue(field: TemplateField, value: string | undefined): string {
+  if (field.type !== "select") return value ?? "";
+  return field.options?.find((option) => option.value === value)?.label ?? "";
 }
 
 export default function EsignCreateForm({ templates, initialContact = null }: { templates: ContractTemplateSchema[]; initialContact?: InitialContact | null }) {
@@ -151,7 +167,7 @@ export default function EsignCreateForm({ templates, initialContact = null }: { 
         <h2>{values.title || schema.name}</h2>
         <dl>
           {visibleFields.map((field) => (
-            <div key={field.key}><dt>{field.label}</dt><dd>{values[field.key] || "未入力"}</dd></div>
+            <div key={field.key}><dt>{field.label}</dt><dd>{displayValue(field, values[field.key]) || "未入力"}</dd></div>
           ))}
           <div><dt>送付先</dt><dd>{clientEmail || "未入力"}</dd></div>
         </dl>

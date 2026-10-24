@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { formatDocNumber, getEsignDocumentById } from "@/lib/esign/core";
 import { verifyContractContent } from "@/lib/esign/verify";
+import { getKitConfig } from "@/lib/config";
+import RelinkForm from "./RelinkForm";
 import VoidForm from "./VoidForm";
 
 function dateTime(value: string | null): string {
@@ -32,6 +34,7 @@ export default async function EsignDetailPage({ params }: { params: Promise<{ id
         </dl>
       </section>
       <article className="contract-frame" dangerouslySetInnerHTML={{ __html: doc.contract_html }} />
+      {doc.status === "sent" ? <RelinkForm id={doc.id} signingTokenDays={getKitConfig().signingTokenDays} /> : null}
       {doc.status === "sent" ? <VoidForm id={doc.id} /> : null}
     </main>
   );
