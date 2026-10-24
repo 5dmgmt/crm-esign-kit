@@ -54,6 +54,7 @@ export type EsignRepository = {
   list(limit: number): Promise<EsignDocument[]>;
   signIfSent(id: string, update: EsignSignUpdate): Promise<EsignDocument | null>;
   void(id: string, reason: string, at: string): Promise<EsignDocument | null>;
+  reissueToken(id: string, tokenHash: string, expiresAt: string): Promise<EsignDocument | null>;
 };
 
 async function defaultRepository(): Promise<EsignRepository> {
@@ -188,6 +189,19 @@ export async function signEsignDocument(
     client_sign_ua: normalizeSignerInput(params.userAgent, 256),
   });
   return updated ? { ok: true, doc: updated } : { ok: false, reason: "already_signed" };
+}
+
+// 保存しているのはトークンのハッシュだけなので、リンクをなくしたときは新しいリンクに差し替える
+export async function reissueSignToken(
+  id: string,
+  repository?: EsignRepository,
+): Promise<{ doc: EsignDocument; token: string } | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const repo = repository ?? (await defaultRepository());
+  const token = generateToken();
+  const expires = new Date(Date.now() + getKitConfig().signingTokenDays * 86_400_000);
+  const doc = await repo.reissueToken(id, sha256Hex(token), expires.toISOString());
+  return doc ? { doc, token } : null;
 }
 
 export async function voidEsignDocument(id: string, reason: string, repository?: EsignRepository) {

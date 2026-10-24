@@ -1,5 +1,7 @@
 export type ClientKind = "individual" | "corporation";
-export type TemplateFieldType = "text" | "textarea" | "date" | "money" | "list";
+export type TemplateFieldType = "text" | "textarea" | "date" | "money" | "list" | "select";
+
+export type TemplateFieldOption = { value: string; label: string };
 
 export type TemplateField = {
   key: string;
@@ -9,6 +11,7 @@ export type TemplateField = {
   max: number;
   defaultValue?: string | string[];
   requiredFor?: ClientKind;
+  options?: TemplateFieldOption[];
 };
 
 export type ContractTemplateSchema = {

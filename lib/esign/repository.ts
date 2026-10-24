@@ -43,6 +43,18 @@ export const supabaseEsignRepository: EsignRepository = {
     if (error) throw new Error("esign_sign_failed");
     return data as EsignDocument | null;
   },
+  async reissueToken(id: string, tokenHash: string, expiresAt: string) {
+    const { data, error } = await getDb()
+      .from("esign_documents")
+      .update({ token_hash: tokenHash, token_expires_at: expiresAt })
+      .eq("id", id)
+      // 署名後や無効化後のリンクは差し替えない
+      .eq("status", "sent")
+      .select("*")
+      .maybeSingle();
+    if (error) throw new Error("esign_reissue_failed");
+    return data as EsignDocument | null;
+  },
   async void(id: string, reason: string, at: string) {
     const { data, error } = await getDb()
       .from("esign_documents")

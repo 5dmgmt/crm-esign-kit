@@ -4,7 +4,21 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { ContractTemplate, ContractTemplateSchema, TemplateFieldType } from "@/lib/esign/types";
 
-const FIELD_TYPES = new Set<TemplateFieldType>(["text", "textarea", "date", "money", "list"]);
+const FIELD_TYPES = new Set<TemplateFieldType>(["text", "textarea", "date", "money", "list", "select"]);
+
+function validOptions(options: unknown): boolean {
+  return (
+    Array.isArray(options) &&
+    options.length > 0 &&
+    options.every(
+      (option) =>
+        option &&
+        typeof option === "object" &&
+        typeof (option as Record<string, unknown>).value === "string" &&
+        typeof (option as Record<string, unknown>).label === "string",
+    )
+  );
+}
 
 function validateSchema(value: unknown, expectedId: string): ContractTemplateSchema {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_template_schema");
@@ -28,7 +42,8 @@ function validateSchema(value: unknown, expectedId: string): ContractTemplateSch
       !FIELD_TYPES.has(field.type) ||
       typeof field.required !== "boolean" ||
       !Number.isInteger(field.max) ||
-      field.max <= 0
+      field.max <= 0 ||
+      (field.type === "select" && !validOptions(field.options))
     ) {
       throw new Error("invalid_template_field");
     }
