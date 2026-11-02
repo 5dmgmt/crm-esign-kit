@@ -1,0 +1,14 @@
+{
+  "id": "ai-keiei",
+  "name": "見本：AI経営実装",
+  "version": "1.0.0",
+  "allowIndividual": false,
+  "stageTagOnSign": "契約",
+  "fields": [
+    { "key": "title", "label": "契約書名", "type": "text", "required": true, "max": 120, "defaultValue": "経営コンサルティング業務委託契約書" },
+    { "key": "clientCompany", "label": "お客様の会社名", "type": "text", "required": true, "requiredFor": "corporation", "max": 120 },
+    { "key": "clientName", "label": "お客様の代表者の肩書きと氏名", "type": "text", "required": true, "max": 80 },
+    { "key": "clientAddress", "label": "お客様の住所", "type": "textarea", "required": true, "max": 300 },
+    { "key": "contractDate", "label": "契約締結日", "type": "date", "required": false, "max": 10 }
+  ]
+}

@@ -20,7 +20,10 @@ function validOptions(options: unknown): boolean {
   );
 }
 
-function validateSchema(value: unknown, expectedId: string): ContractTemplateSchema {
+export function validateContractTemplateSchema(
+  value: unknown,
+  expectedId: string,
+): ContractTemplateSchema {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_template_schema");
   const schema = value as Partial<ContractTemplateSchema>;
   if (
@@ -51,14 +54,24 @@ function validateSchema(value: unknown, expectedId: string): ContractTemplateSch
   return schema as ContractTemplateSchema;
 }
 
-export async function loadContractTemplate(id: string): Promise<ContractTemplate> {
-  if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(id)) throw new Error("template_not_found");
-  const directory = path.join(process.cwd(), "templates", "contracts", id);
+export async function loadContractTemplateDirectory(
+  directory: string,
+  expectedId: string,
+): Promise<ContractTemplate> {
   const [html, schemaText] = await Promise.all([
     fs.readFile(path.join(directory, "template.html"), "utf8"),
     fs.readFile(path.join(directory, "schema.json"), "utf8"),
   ]);
-  return { html, schema: validateSchema(JSON.parse(schemaText) as unknown, id) };
+  return {
+    html,
+    schema: validateContractTemplateSchema(JSON.parse(schemaText) as unknown, expectedId),
+  };
+}
+
+export async function loadContractTemplate(id: string): Promise<ContractTemplate> {
+  if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(id)) throw new Error("template_not_found");
+  const directory = path.join(process.cwd(), "templates", "contracts", id);
+  return loadContractTemplateDirectory(directory, id);
 }
 
 export async function listContractTemplates(): Promise<ContractTemplateSchema[]> {

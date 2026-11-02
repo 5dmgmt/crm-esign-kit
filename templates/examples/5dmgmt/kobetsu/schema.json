@@ -1,0 +1,36 @@
+{
+  "id": "kobetsu",
+  "name": "見本：個別見積り",
+  "version": "1.0.0",
+  "allowIndividual": false,
+  "stageTagOnSign": "契約",
+  "fields": [
+    { "key": "title", "label": "契約書名の前半", "type": "text", "required": true, "max": 120, "defaultValue": "個別見積り" },
+    { "key": "clientCompany", "label": "お客様の会社名", "type": "text", "required": true, "requiredFor": "corporation", "max": 120 },
+    { "key": "clientName", "label": "お客様の代表者の肩書きと氏名", "type": "text", "required": true, "max": 80 },
+    { "key": "clientAddress", "label": "お客様の住所", "type": "textarea", "required": true, "max": 300 },
+    { "key": "purposeJa", "label": "業務の目的（「〜」に関する業務）", "type": "textarea", "required": true, "max": 500 },
+    { "key": "serviceName", "label": "委託業務の名称", "type": "text", "required": true, "max": 200 },
+    { "key": "engagementJa", "label": "業務内容の結び（例：に関する助言指導および実行支援）", "type": "text", "required": true, "max": 200 },
+    { "key": "scopeItems", "label": "委託業務の内容", "type": "list", "required": true, "max": 20 },
+    { "key": "deliveryJa", "label": "業務提供方法", "type": "textarea", "required": true, "max": 500 },
+    {
+      "key": "excludedItems",
+      "label": "この契約に含まないこと",
+      "type": "list",
+      "required": true,
+      "max": 20,
+      "defaultValue": [
+        "投資家その他の相手方との交渉への同席",
+        "投資家向け資料その他の書面の作成",
+        "法律、税務および会計に関する専門的な判断（甲は、これらの判断について、弁護士、税理士、公認会計士その他の専門家に確認するものとする。）"
+      ]
+    },
+    { "key": "feeJa", "label": "報酬", "type": "text", "required": true, "max": 200 },
+    { "key": "paymentDueJa", "label": "請求書記載の支払期日に続く文言", "type": "text", "required": false, "max": 100, "defaultValue": "当月末日" },
+    { "key": "termJa", "label": "契約期間", "type": "text", "required": true, "max": 60 },
+    { "key": "noticeJa", "label": "解約の申し出の期限", "type": "text", "required": true, "max": 30 },
+    { "key": "renewalJa", "label": "更新の期間", "type": "text", "required": true, "max": 30 },
+    { "key": "contractDate", "label": "契約締結日", "type": "date", "required": false, "max": 10 }
+  ]
+}

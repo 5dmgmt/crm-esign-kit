@@ -1,0 +1,49 @@
+{
+  "id": "komon-mokuteki",
+  "name": "顧問契約（目的を絞った月額顧問）",
+  "version": "1.0.0",
+  "allowIndividual": true,
+  "stageTagOnSign": "契約",
+  "fields": [
+    { "key": "title", "label": "契約書名", "type": "text", "required": true, "max": 120, "defaultValue": "顧問業務委託基本契約書" },
+    { "key": "clientCompany", "label": "お客様の会社名", "type": "text", "required": true, "requiredFor": "corporation", "max": 120 },
+    { "key": "clientName", "label": "お客様の氏名（法人は代表者の肩書きと氏名）", "type": "text", "required": true, "max": 80 },
+    { "key": "clientAddress", "label": "お客様の住所", "type": "textarea", "required": true, "max": 300 },
+    { "key": "purpose", "label": "顧問の目的（お客様の言葉で、一文で）", "type": "textarea", "required": true, "max": 200 },
+    { "key": "goalSign", "label": "目的に近づいたと判断する目安", "type": "textarea", "required": true, "max": 300 },
+    { "key": "serviceName", "label": "業務の名称", "type": "text", "required": true, "max": 120, "defaultValue": "顧問業務" },
+    { "key": "scope", "label": "業務の内容（目的に効くものだけ、5 つまで）", "type": "list", "required": true, "max": 5 },
+    {
+      "key": "outOfScope",
+      "label": "この契約に含まないこと",
+      "type": "list",
+      "required": true,
+      "max": 10,
+      "defaultValue": [
+        "本目的の実現に直接関わらない業務",
+        "法律、税務および会計に関する専門的な判断（甲は、これらの判断について、弁護士、税理士、公認会計士その他の専門家に確認するものとする。）"
+      ]
+    },
+    {
+      "key": "meetingStyle",
+      "label": "打ち合わせの持ち方",
+      "type": "select",
+      "required": true,
+      "max": 60,
+      "options": [
+        { "value": "月１回のWEBミーティング", "label": "月１回のWEBミーティング" },
+        { "value": "月２回のWEBミーティング", "label": "月２回のWEBミーティング" },
+        { "value": "月１回の面談", "label": "月１回の面談" }
+      ]
+    },
+    { "key": "monthlyFee", "label": "月額報酬（例：10,000円（税別））", "type": "text", "required": true, "max": 60 },
+    { "key": "monthlyFeeTaxIn", "label": "各月の請求額（例：11,000円（税込））", "type": "text", "required": true, "max": 60 },
+    { "key": "firstPaymentDue", "label": "初月分の支払期日（例：2026年11月10日）", "type": "text", "required": true, "max": 60 },
+    { "key": "monthlyDue", "label": "２か月目以降の支払期日（例：前月末日）", "type": "text", "required": true, "max": 60 },
+    { "key": "termStart", "label": "契約期間の始まり（例：2026年11月1日）", "type": "text", "required": true, "max": 60 },
+    { "key": "termEnd", "label": "契約期間の終わり（例：2027年4月30日）", "type": "text", "required": true, "max": 60 },
+    { "key": "notice", "label": "解約の申し出の期限", "type": "text", "required": true, "max": 30, "defaultValue": "１か月" },
+    { "key": "renewal", "label": "更新の期間", "type": "text", "required": true, "max": 30, "defaultValue": "６か月" },
+    { "key": "contractDate", "label": "契約締結日", "type": "date", "required": false, "max": 10 }
+  ]
+}

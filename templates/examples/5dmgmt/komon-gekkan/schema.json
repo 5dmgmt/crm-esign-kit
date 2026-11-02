@@ -1,0 +1,31 @@
+{
+  "id": "komon-gekkan",
+  "name": "見本：顧問（月額・基本契約・自動更新）",
+  "version": "1.0.0",
+  "allowIndividual": true,
+  "stageTagOnSign": "契約",
+  "fields": [
+    { "key": "title", "label": "契約書名", "type": "text", "required": true, "max": 120, "defaultValue": "顧問業務委託基本契約書" },
+    { "key": "clientCompany", "label": "お客様の会社名", "type": "text", "required": true, "requiredFor": "corporation", "max": 120 },
+    { "key": "clientName", "label": "お客様の氏名（法人は代表者の肩書きと氏名）", "type": "text", "required": true, "max": 80 },
+    { "key": "clientAddress", "label": "お客様の住所", "type": "textarea", "required": true, "max": 300 },
+    { "key": "basicScopeJa", "label": "基本契約を適用する取引の範囲", "type": "textarea", "required": true, "max": 500 },
+    { "key": "purposeJa", "label": "顧問業務の目的", "type": "textarea", "required": true, "max": 500 },
+    { "key": "serviceName", "label": "委託業務の名称", "type": "text", "required": true, "max": 200 },
+    { "key": "scopeItems", "label": "委託業務の内容", "type": "list", "required": true, "max": 19 },
+    { "key": "excludedItems", "label": "この契約に含まないこと", "type": "list", "required": true, "max": 20 },
+    { "key": "monthlyFeeJa", "label": "月額報酬", "type": "text", "required": true, "max": 60 },
+    { "key": "monthlyFeeTaxInJa", "label": "各月の請求額", "type": "text", "required": true, "max": 60 },
+    { "key": "firstMonthJa", "label": "初月の対象期間", "type": "text", "required": true, "max": 60 },
+    { "key": "firstPaymentDueJa", "label": "初月分の支払期日", "type": "text", "required": true, "max": 60 },
+    { "key": "monthlyDueJa", "label": "２か月目以降の支払期日", "type": "text", "required": true, "max": 60 },
+    { "key": "monthDefinitionJa", "label": "この契約での「月」の定義", "type": "text", "required": true, "max": 120 },
+    { "key": "outcomesJa", "label": "保証しない成果", "type": "textarea", "required": true, "max": 500 },
+    { "key": "clientIpJa", "label": "お客様が契約前から持つ知的財産", "type": "textarea", "required": true, "max": 500 },
+    { "key": "termStartJa", "label": "契約期間の始まり", "type": "text", "required": true, "max": 60 },
+    { "key": "termEndJa", "label": "契約期間の終わり", "type": "text", "required": true, "max": 60 },
+    { "key": "noticeJa", "label": "解約の申し出の期限", "type": "text", "required": true, "max": 30 },
+    { "key": "renewalJa", "label": "更新の期間", "type": "text", "required": true, "max": 30 },
+    { "key": "contractDate", "label": "契約締結日", "type": "date", "required": false, "max": 10 }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "ai-katsuyo",
+  "name": "見本：AI活用サポート（対面講義つき・期間限定）",
+  "version": "1.0.0",
+  "allowIndividual": false,
+  "stageTagOnSign": "契約",
+  "fields": [
+    { "key": "title", "label": "契約書名", "type": "text", "required": true, "max": 120, "defaultValue": "AI活用サポート業務委託契約書" },
+    { "key": "clientCompany", "label": "お客様の会社名", "type": "text", "required": true, "requiredFor": "corporation", "max": 120 },
+    { "key": "clientName", "label": "お客様の代表者の肩書きと氏名", "type": "text", "required": true, "max": 80 },
+    { "key": "clientAddress", "label": "お客様の住所", "type": "textarea", "required": true, "max": 300 },
+    { "key": "purposeJa", "label": "サポート業務の目的", "type": "textarea", "required": true, "max": 500, "defaultValue": "生成AIを活用した甲の自社ホームページ、業務アプリおよび資料の作成" },
+    { "key": "serviceName", "label": "委託業務の名称", "type": "text", "required": true, "max": 200, "defaultValue": "AI活用サポート業務（Claude等の生成AIを用いたアプリ作成のサポート）" },
+    {
+      "key": "scopeItems",
+      "label": "委託業務の内容",
+      "type": "list",
+      "required": true,
+      "max": 19,
+      "defaultValue": [
+        "甲の自社ホームページの作成",
+        "甲の業務フローを自動化するアプリの作成",
+        "甲のプレゼンテーション資料の作成",
+        "①乃至③に必要な生成AIツールの設定および操作方法の習得"
+      ]
+    },
+    { "key": "lectureJa", "label": "対面講義の時期や回数（指定場所の前まで）", "type": "text", "required": true, "max": 200 },
+    { "key": "feeJa", "label": "報酬", "type": "text", "required": true, "max": 200 },
+    { "key": "paymentDueJa", "label": "支払期日", "type": "text", "required": true, "max": 60 },
+    { "key": "termStartJa", "label": "契約期間の始まり", "type": "text", "required": true, "max": 60 },
+    { "key": "termEndJa", "label": "契約期間の終わり", "type": "text", "required": true, "max": 60 },
+    { "key": "contractDate", "label": "契約締結日", "type": "date", "required": false, "max": 10 }
+  ]
+}
