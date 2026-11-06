@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- PROMPT.md: Claude in Chrome が入っている場合の Google OAuth の進め方を追加。
+
 ## 0.2.0 - 2026-11-02
 
 - ひな形「顧問契約（目的を絞った月額顧問）」（`komon-mokuteki`）を追加。お客さまの目的・目安・含まないこと・目的から外れるご依頼の扱い・目的の見直しを条文に入れた月額顧問の基本契約。
