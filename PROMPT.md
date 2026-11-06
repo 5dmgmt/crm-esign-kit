@@ -26,7 +26,7 @@ crm-esign-kit は、自社の Vercel と Supabase に入れて使う、顧客台
 4. Supabase のプロジェクトの作成、Google の OAuth クライアントの作成、Vercel のプロジェクトの作成、SMTP や Resend のキーの発行は、私が自分の画面で行います。あなたは README に沿って、どの画面で何を選ぶかを一つずつ案内してください。Google の「承認済みのリダイレクト URI」に登録する値（<SITE_URL>/api/auth/callback/google と、ローカル用の http://localhost:3000/api/auth/callback/google）は、私の URL に合わせて書き出してください。
 5. migration を適用する前に、supabase/migrations の各ファイルが何を作るか（テーブル・RLS・資料の置き場）を、専門用語を控えて説明し、私の了解を取ってください。適用は番号順に一度ずつです。SQL エディタに貼るか supabase CLI を使うかは、私に聞いてください。
 6. kit.config.example.ts を kit.config.ts に写し、発行者の情報（会社名・代表者の肩書きと氏名・住所 2 行・問い合わせ先のメール・電話・印影の文字と色）、本番の URL、メールの送り方、段階の一覧を、私に聞きながら一緒に書いてください。書いたあと、変えた内容を見せてください。
-7. 環境変数は、.env.example の名前ごとに、何を入れるかを説明してください。値は私が自分で入れます。ローカル用は .env.local に私のエディタで、本番用は Vercel の画面か vercel env add で入れます。秘密の値（SUPABASE_SERVICE_ROLE_KEY・NEXTAUTH_SECRET・GOOGLE_CLIENT_SECRET・SMTP_PASS・RESEND_API_KEY）は、Vercel では sensitive にするよう案内してください。
+7. 環境変数は、.env.tpl（1Password を使わない場合は .env.example）の名前ごとに、何を入れるかを説明してください。値は私が自分で入れます。ローカル用は、1Password の item を作って op inject で .env.local を生成します（item の作り方はあなたが案内し、値は私がクリップボード経由で入れます）。1Password を使わない場合だけ、.env.local に私のエディタで入れます。本番用は Vercel の画面か vercel env add で入れます。秘密の値（SUPABASE_SERVICE_ROLE_KEY・NEXTAUTH_SECRET・GOOGLE_CLIENT_SECRET・SMTP_PASS・RESEND_API_KEY）は、Vercel では sensitive にするよう案内してください。
 8. npm run dev でローカルを起動し、ADMIN_EMAILS に入れた私の Google アカウントでログインできること、連絡先を一件登録できることを、私と一緒に確かめてください。
 9. Vercel へのデプロイは、README の手順 8 に沿って進めてください。自社用のリポジトリは私が GitHub に作ります。kit.config.ts を git add -f で加えて push する前に、push 先が私の作った非公開のリポジトリであることを、私に確かめてください。
 10. デプロイしたら、README の手順 9 に沿って、自分宛てのテスト契約で一巡を確かめてください（連絡先の登録 → 契約書の作成と送付 → 署名 → 締結記録とハッシュ照合 → 控えの印刷 → 締結記録のメール → 段階が進んだこと）。うまくいかないところは原因を調べ、直す前に、何をどう直すかを説明してください。
@@ -51,10 +51,11 @@ Supabase・Google の OAuth クライアント・Vercel の画面は、Claude in
 秘密の値（SUPABASE_SERVICE_ROLE_KEY・GOOGLE_CLIENT_SECRET など）の運び方:
 - 値が画面に出る直前のボタンは私が押します。押す前に「このあと〇〇が出ます。私は画面を撮らず、クリップボード経由で入れます。『作成』を押してください」と言ってください。
 - 値が画面に出ているあいだは、スクリーンショットを撮らず、ページの文字も読まないでください。画面の「コピー」ボタンでクリップボードに入れ、ターミナルで値を表示せずに置き場へ入れてください。
-  ローカル: printf '%s=%s\n' <名前> "$(pbpaste)" >> .env.local
+  ローカル（1Password）: op item edit <item> --vault workshop "<field>[password]=$(pbpaste)"（item は上の枠の手順 7 で作ってあるもの）。そのあと op inject -i .env.tpl -o .env.local --force で .env.local を作り直す
+  ローカル（1Password を使わない場合）: printf '%s=%s\n' <名前> "$(pbpaste)" >> .env.local
   本番（Vercel のプロジェクトを作ったあと）: pbpaste | vercel env add <名前> production --sensitive
   使ったら pbcopy < /dev/null でクリップボードを空にしてください。
-- 入ったことは、名前があるかだけで確かめてください（grep -c '^<名前>=' .env.local、vercel env ls）。
+- 入ったことは、名前があるかだけで確かめてください（1Password は op item get <item> --vault workshop で項目名を見る。--reveal は付けない。.env.local は grep -c '^<名前>=' .env.local。Vercel は vercel env ls）。
 - 万一、値がこの会話に出てしまったら、そのキーやクライアントは削除して作り直してください。
 
 Google の OAuth クライアント:
@@ -64,7 +65,7 @@ Google の OAuth クライアント:
 4. 「承認済みのリダイレクト URI」に、<SITE_URL>/api/auth/callback/google と http://localhost:3000/api/auth/callback/google の 2 本を入れる（<SITE_URL> は私に聞く）。
 5. ここで止まって、「作成」を押すのは私。出たクライアント ID と シークレットは、上の運び方で GOOGLE_CLIENT_ID・GOOGLE_CLIENT_SECRET として入れる。
 
-Supabase: プロジェクト名と地域はあなたが埋め、データベースのパスワードを入れて「作成」を押すのは私（パスワードは私が控える）。Project URL は秘密ではないので普通に .env.local に書いてよい。service_role のキーは上の運び方で。
+Supabase: プロジェクト名と地域はあなたが埋め、データベースのパスワードを入れて「作成」を押すのは私（パスワードは私が控える）。Project URL は秘密ではないので、1Password の item に普通に入れてよい（1Password を使わない場合は .env.local に書いてよい）。service_role のキーは上の運び方で。
 Vercel: リポジトリの読み込みとプロジェクト名はあなたが埋め、プランの選択と支払いは私。環境変数の秘密の値は上の運び方で sensitive に。
 
 守ってほしいこと:
@@ -204,7 +205,7 @@ crm-esign-kit の「顧問契約（目的を絞った月額顧問）」のひな
 
 進め方:
 1. 自社のリポジトリのフォルダで git status を確かめてください。私の変更が残っていたら、進める前に私に相談してください。
-2. git fetch upstream で新しい版を取り込み、今の版との違い（とくに supabase/migrations・kit.config.example.ts・.env.example・templates）を短く説明してください。upstream がなければ、README の手順 8 に沿って、公開リポジトリを upstream として足してください。
+2. git fetch upstream で新しい版を取り込み、今の版との違い（とくに supabase/migrations・kit.config.example.ts・.env.example・.env.tpl・templates）を短く説明してください。upstream がなければ、README の手順 8 に沿って、公開リポジトリを upstream として足してください。
 3. 私の了解を取ってから git merge upstream/main を行い、npm ci・npm test・npm run typecheck を通してください。kit.config.ts や templates の自社の変更とぶつかったら、どちらを残すかを私に聞いてください。
 4. 新しい migration があれば、何を変えるかを説明し、私の了解を取ってから、増えた分だけを番号順に適用してください。
 5. 環境変数が増えていれば、名前と入れる内容を説明してください。値は私が Vercel の画面か vercel env add で入れます。

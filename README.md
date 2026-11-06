@@ -158,7 +158,7 @@ cp kit.config.example.ts kit.config.ts
 
 ### 6. 環境変数を入れる
 
-名前は `.env.example` にそろっています。
+名前は `.env.example` と `.env.tpl` にそろっています。
 
 | 名前 | 入れるもの |
 | --- | --- |
@@ -179,9 +179,19 @@ cp kit.config.example.ts kit.config.ts
 | `RESEND_API_KEY` | Resend の API キー（秘密） |
 | `MAIL_FROM` | 差出人アドレス。Resend では、Resend で認証したドメインのアドレスにします。空のときは `issuer.contactEmail` |
 
-使わないメールの方式の欄は、空のままで構いません。
+使わないメールの方式の欄は、`.env.example` を使うときは空のままで構いません。
 
-- **ローカル**: `.env.example` を `.env.local` に写し、ご自身のエディタで値を入れます。`.env.local` は `.gitignore` で除外されています。ローカルでは `SITE_URL` と `NEXTAUTH_URL` を `http://localhost:3000` にします。
+- **ローカル（1Password をお使いの場合。おすすめです）**: 秘密の値は 1Password に置き、`.env.tpl` から `.env.local` を作ります。`.env.tpl` には値ではなく、1Password の置き場所（vault・item・field の参照）だけが書いてあります。
+  1. `.env.tpl` の参照先を、ご自身の 1Password の vault・item・field の名前に合わせて直します。使わないメール方式（`MAIL_TRANSPORT` で選ばない方の SMTP か Resend）の行は消します。参照先の item が無いと、次のコマンドが止まるためです。
+  2. 値を 1Password の item に入れます。値はご自身で入れ、チャットやファイルには書きません。
+  3. `.env.local` を作ります。
+
+     ```bash
+     op inject -i .env.tpl -o .env.local
+     ```
+
+- **ローカル（1Password を使わない場合）**: `.env.example` を `.env.local` に写し、ご自身のエディタで値を入れます。
+- **どちらの場合も**: `.env.local` は `.gitignore` で除外されています。ローカルでは `SITE_URL` と `NEXTAUTH_URL` を `http://localhost:3000` にします（`.env.tpl` は初めからその値です）。
 - **Vercel**: プロジェクトの Settings → Environment Variables の画面か、`vercel env add <名前> production` で Production に入れます。秘密の値は sensitive にします（CLI では `--sensitive` を付けます）。環境変数を変えたあとは、デプロイし直すと反映されます。
 - 秘密の値は、チャットやファイル、コミットに書かずに扱ってください。
 - 管理画面は、`SITE_URL` と同じ URL で開いて使います。別の URL（Vercel が自動で付ける `*.vercel.app` やプレビューの URL など）で開くと、保存などの書き込み操作が「この操作は管理画面から行ってください」で止まります。
@@ -383,7 +393,7 @@ npm test
 ```
 
 - `supabase/migrations/` に新しい番号のファイルが増えていたら、増えた分だけを番号順に適用してから、デプロイします。
-- `kit.config.example.ts` や `.env.example` に項目が増えていたら、`kit.config.ts` と環境変数に足すかを確かめます。
+- `kit.config.example.ts` や `.env.example`・`.env.tpl` に項目が増えていたら、`kit.config.ts` と環境変数に足すかを確かめます。
 - 自社のリポジトリへ push すると、Vercel がデプロイし直します。そのあと、自分宛てのテスト契約で一巡を確かめます。
 
 Claude Code に任せる場合は、[PROMPT.md の「新しい版が出たとき」](PROMPT.md#新しい版が出たとき)の枠を貼り付けてください。

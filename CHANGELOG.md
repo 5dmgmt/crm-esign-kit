@@ -3,6 +3,7 @@
 ## Unreleased
 
 - PROMPT.md: Claude in Chrome が入っている場合の Google OAuth の進め方を追加。
+- `.env.tpl` と 1Password（`op inject`）の案内を追加。使うかどうかは任意で、使わない場合は従来どおり `.env.example` を写して使える。
 
 ## 0.2.0 - 2026-11-02
 
