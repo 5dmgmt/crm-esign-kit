@@ -145,4 +145,11 @@ tr:last-child td { border-bottom: 0; }
   body, html { background: white; }
   .public-contract { width: 100%; padding: 0; }
   .contract-frame { border: 0; padding: 0; }
+  /* 改ページ: 条文は自然に流し、見出し・署名欄・表の行だけ割れないようにする（強制改ページは入れない） */
+  .contract-frame h1, .contract-frame h2, .contract-frame h3 { break-after: avoid; }
+  .contract-frame p { orphans: 2; widows: 2; }
+  .esign-signatures, .esign-signatures section, .esign-issuer-seal, .record-grid > div { break-inside: avoid; }
+  .contract-frame tr { break-inside: avoid; }
+  /* 契約締結日の行は、次の署名欄と同じページに送る（日付だけ前のページに残さない） */
+  .esign-contract__date { break-after: avoid; }
 }

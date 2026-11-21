@@ -1,6 +1,6 @@
 {
   "name": "crm-esign-kit",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -37,6 +37,9 @@
   "overrides": {
     "next-auth": {
       "nodemailer": "$nodemailer"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "11.0.4"
     }
   },
   "engines": {
