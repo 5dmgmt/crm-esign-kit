@@ -104,4 +104,35 @@ describe("署名 API", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
   });
+
+  it("フックが失敗したとき、理由の分類だけを 1 行ログに出す", async () => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.hook.mockRejectedValueOnce(new Error(`failed for ${doc.client_email} token=${validBody.token}`));
+    const response = await POST(request(validBody));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    expect(logged).toHaveBeenCalledTimes(1);
+    expect(logged).toHaveBeenCalledWith("[esign] notify failed: hook");
+  });
+
+  it("通知メールが失敗しても署名成功を返し、理由の分類だけを 1 行ログに出す", async () => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.mail.mockRejectedValueOnce(new Error(`smtp down for ${doc.client_email} token=${validBody.token}`));
+    const response = await POST(request(validBody));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    expect(logged).toHaveBeenCalledTimes(1);
+    const output = JSON.stringify(logged.mock.calls);
+    expect(output).toContain("[esign] notify failed: mail");
+    expect(output).not.toContain(doc.client_email);
+    expect(output).not.toContain(validBody.token);
+    expect(output).not.toContain("smtp down");
+  });
+
+  it("通知が成功したときは、ログを出さない", async () => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    const response = await POST(request(validBody));
+    expect(response.status).toBe(200);
+    expect(logged).not.toHaveBeenCalled();
+  });
 });

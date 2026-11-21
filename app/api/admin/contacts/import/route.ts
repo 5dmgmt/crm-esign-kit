@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { jsonError, jsonOk, readJson } from "@/lib/api";
 import { guardAdminWrite } from "@/lib/auth/admin-api";
 import { getKitConfig } from "@/lib/config";
@@ -6,6 +7,12 @@ import { InputError, assertAllowedKeys, validateContact } from "@/lib/crm/valida
 import { getDb } from "@/lib/db";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
+
+// 連絡先とメモは、この件数ごとにまとめて保存する（1 行ずつだと Vercel の時間切れで途中までしか入らないため）
+const INSERT_CHUNK_SIZE = 200;
+// Supabase は 1 回の取得に上限（既定 1,000 行）があるため、既存のメールも 1,000 件ずつ全件を読む
+const EXISTING_PAGE_SIZE = 1000;
 
 const CSV_KEYS = new Set<CsvContactKey>(CONTACT_CSV_COLUMNS.map(([key]) => key));
 
@@ -47,13 +54,23 @@ export async function POST(request: Request) {
   if (!body || typeof body.csv !== "string" || body.csv.length > 5_000_000 || (body.confirm !== undefined && typeof body.confirm !== "boolean")) {
     return jsonError("CSVは5MB以内のUTF-8ファイルをご用意ください。", 400);
   }
+  let writing = false;
   try {
     assertAllowedKeys(body, ["csv", "mapping", "confirm"]);
     const parsed = rowsFromCsv(body.csv, mappingFrom(body.mapping));
     if (parsed.rows.length > 5000) return jsonError("一度に取り込めるのは5,000行までです。", 400);
-    const { data: existing, error } = await getDb().from("contacts").select("email").not("email", "is", null);
-    if (error) throw new Error("existing_lookup_failed");
-    const knownEmails = new Set((existing ?? []).flatMap((item) => item.email ? [item.email.toLowerCase()] : []));
+    const knownEmails = new Set<string>();
+    for (let from = 0; ; from += EXISTING_PAGE_SIZE) {
+      const { data: existing, error } = await getDb()
+        .from("contacts")
+        .select("email")
+        .not("email", "is", null)
+        .order("id")
+        .range(from, from + EXISTING_PAGE_SIZE - 1);
+      if (error) throw new Error("existing_lookup_failed");
+      for (const item of existing ?? []) if (item.email) knownEmails.add(item.email.toLowerCase());
+      if (!existing || existing.length < EXISTING_PAGE_SIZE) break;
+    }
     const validated = parsed.rows.map((row, index) => {
       try {
         const value = validateContact(contactInput(row));
@@ -91,19 +108,29 @@ export async function POST(request: Request) {
       reason: null;
     }>;
     let imported = 0;
-    for (const item of importable) {
-      const { data: contact, error: insertError } = await getDb().from("contacts").insert(item.value).select("id").single();
-      if (insertError?.code === "23505") continue;
-      if (insertError || !contact) throw new Error("contact_insert_failed");
-      if (item.memo) {
-        const { error: noteError } = await getDb().from("contact_notes").insert({
-          contact_id: contact.id,
-          note_type: "note",
-          body: item.memo,
-        });
+    for (let start = 0; start < importable.length; start += INSERT_CHUNK_SIZE) {
+      writing = true;
+      // メモを結び付けるため、連絡先の id は送る側で決めて一緒に入れる
+      const chunk = importable.slice(start, start + INSERT_CHUNK_SIZE).map((item) => ({ ...item, id: randomUUID() }));
+      const { error: chunkError } = await getDb().from("contacts").insert(chunk.map((item) => ({ id: item.id, ...item.value })));
+      let saved = chunk;
+      if (chunkError) {
+        if (chunkError.code !== "23505") throw new Error("contact_insert_failed");
+        // まとまりの中に重複があったときは、そのまとまりだけ 1 行ずつに戻す（重複は飛ばし、ほかは入れる）
+        saved = [];
+        for (const item of chunk) {
+          const { error: insertError } = await getDb().from("contacts").insert({ id: item.id, ...item.value });
+          if (insertError?.code === "23505") continue;
+          if (insertError) throw new Error("contact_insert_failed");
+          saved.push(item);
+        }
+      }
+      const notes = saved.filter((item) => item.memo).map((item) => ({ contact_id: item.id, note_type: "note", body: item.memo }));
+      if (notes.length > 0) {
+        const { error: noteError } = await getDb().from("contact_notes").insert(notes);
         if (noteError) throw new Error("memo_insert_failed");
       }
-      imported += 1;
+      imported += saved.length;
     }
     return jsonOk({
       imported,
@@ -114,6 +141,12 @@ export async function POST(request: Request) {
     if (error instanceof InputError) return jsonError(error.message, 400);
     if (error instanceof Error && (error.message === "csv_unclosed_quote" || error.message === "csv_empty")) {
       return jsonError("CSVの見出し行と引用符をご確認ください。", 400);
+    }
+    if (writing) {
+      return jsonError(
+        "CSVを取り込めませんでした。（途中まで取り込まれている場合があります。連絡先の一覧をご確認のうえ、同じファイルをもう一度取り込むと、取り込み済みのメールアドレスの行は重複として飛ばされます。メールアドレスの無い行は、もう一度入ります）",
+        500,
+      );
     }
     return jsonError("CSVを取り込めませんでした。（ファイルの内容は変更されていません）", 500);
   }

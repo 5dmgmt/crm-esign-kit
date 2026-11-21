@@ -14,6 +14,9 @@ export function isAdminEmail(email: string | null | undefined): boolean {
   return Boolean(email && adminEmails().has(email.trim().toLowerCase()));
 }
 
+// ログインの有効期間は 7 日（秒）。
+export const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -24,8 +27,17 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
+  session: {
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  },
+  // 何も決めないと、ログインの記録（JWT）自体の期限が既定の 30 日のままになるため、7 日に揃える。
+  jwt: {
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  },
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, profile }) {
+      // Google が確認済みと答えたメールだけを通す
+      if ((profile as { email_verified?: boolean } | undefined)?.email_verified !== true) return false;
       return Boolean(user.email?.trim());
     },
     async jwt({ token, user }) {

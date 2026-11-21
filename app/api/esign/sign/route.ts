@@ -1,6 +1,7 @@
 import { getKitConfig } from "@/lib/config";
 import { onContractSigned } from "@/lib/esign/hooks";
 import { sendSignedMails } from "@/lib/esign/mail";
+import { logNotifyFailure } from "@/lib/esign/notify-log";
 import { checkSignRateLimit, clientIp } from "@/lib/esign/rate-limit";
 import { normalizeSignerInput, signEsignDocument } from "@/lib/esign/core";
 
@@ -69,11 +70,13 @@ export async function POST(request: Request) {
       await onContractSigned(result.doc);
     } catch {
       // 署名記録を優先し、付随する台帳更新の失敗では巻き戻しません。
+      logNotifyFailure("hook");
     }
     try {
       await sendSignedMails(result.doc, signUrl);
     } catch {
       // 署名記録を優先し、通知の失敗では巻き戻しません。
+      logNotifyFailure("mail");
     }
     return Response.json({ ok: true });
   } catch {

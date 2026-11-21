@@ -6,19 +6,27 @@ import { getDb } from "@/lib/db";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const NOTES_PAGE_SIZE = 1000;
+
 export async function GET() {
   const denied = await guardAdmin();
   if (denied) return denied;
   try {
     const contacts = await listContacts({ status: "all", sort: "updated" });
-    const { data: notes, error } = await getDb()
-      .from("contact_notes")
-      .select("contact_id,body,created_at")
-      .eq("note_type", "note")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error("notes_failed");
+    // Supabase は 1 回の取得に上限（既定 1,000 行）があるため、メモも 1,000 件ずつ全件を読む
     const latestMemo = new Map<string, string>();
-    for (const note of notes ?? []) if (!latestMemo.has(note.contact_id)) latestMemo.set(note.contact_id, note.body);
+    for (let from = 0; ; from += NOTES_PAGE_SIZE) {
+      const { data: notes, error } = await getDb()
+        .from("contact_notes")
+        .select("contact_id,body,created_at")
+        .eq("note_type", "note")
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, from + NOTES_PAGE_SIZE - 1);
+      if (error) throw new Error("notes_failed");
+      for (const note of notes ?? []) if (!latestMemo.has(note.contact_id)) latestMemo.set(note.contact_id, note.body);
+      if (!notes || notes.length < NOTES_PAGE_SIZE) break;
+    }
     const rows = contacts.map((contact) => {
       const row = Object.fromEntries(CONTACT_CSV_COLUMNS.map(([key]) => [key, ""])) as Record<CsvContactKey, string>;
       return {

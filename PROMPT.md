@@ -51,11 +51,11 @@ Supabase・Google の OAuth クライアント・Vercel の画面は、Claude in
 秘密の値（SUPABASE_SERVICE_ROLE_KEY・GOOGLE_CLIENT_SECRET など）の運び方:
 - 値が画面に出る直前のボタンは私が押します。押す前に「このあと〇〇が出ます。私は画面を撮らず、クリップボード経由で入れます。『作成』を押してください」と言ってください。
 - 値が画面に出ているあいだは、スクリーンショットを撮らず、ページの文字も読まないでください。画面の「コピー」ボタンでクリップボードに入れ、ターミナルで値を表示せずに置き場へ入れてください。
-  ローカル（1Password）: op item edit <item> --vault workshop "<field>[password]=$(pbpaste)"（item は上の枠の手順 7 で作ってあるもの）。そのあと op inject -i .env.tpl -o .env.local --force で .env.local を作り直す
+  ローカル（1Password）: op item edit <item> --vault <vault> "<field>[password]=$(pbpaste)"（<vault> は私の 1Password の vault の名前に読み替える。item は上の枠の手順 7 で作ってあるもの）。そのあと op inject -i .env.tpl -o .env.local --force で .env.local を作り直す
   ローカル（1Password を使わない場合）: printf '%s=%s\n' <名前> "$(pbpaste)" >> .env.local
   本番（Vercel のプロジェクトを作ったあと）: pbpaste | vercel env add <名前> production --sensitive
   使ったら pbcopy < /dev/null でクリップボードを空にしてください。
-- 入ったことは、名前があるかだけで確かめてください（1Password は op item get <item> --vault workshop で項目名を見る。--reveal は付けない。.env.local は grep -c '^<名前>=' .env.local。Vercel は vercel env ls）。
+- 入ったことは、名前があるかだけで確かめてください（1Password は op item get <item> --vault <vault> で項目名を見る。--reveal は付けない。.env.local は grep -c '^<名前>=' .env.local。Vercel は vercel env ls）。
 - 万一、値がこの会話に出てしまったら、そのキーやクライアントは削除して作り直してください。
 
 Google の OAuth クライアント:
